@@ -141,6 +141,11 @@ namespace Tiny_Compiler
                         CurrentLexeme += SourceCode[++i];
                     }
                 }
+                else if(CurrentChar == '<')
+                {
+                    if(i + 1 < SourceCode.Length && SourceCode[i + 1] == '>')
+                        CurrentLexeme += SourceCode[++i];
+                }
                 FindTokenClass(CurrentLexeme);
             }
             
