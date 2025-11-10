@@ -16,11 +16,17 @@ namespace Tiny_Compiler
 
         public static void Start_Compiling(string SourceCode) //character by character
         {
+            //Clear Error list
+            Errors.Error_List.Clear();
+
             //Scanner
- 
+            Tiny_Scanner.Tokens.Clear();
             Tiny_Scanner.StartScanning(SourceCode);
+
             //Parser
+
             //Sematic Analysis
+
         } 
 
 
