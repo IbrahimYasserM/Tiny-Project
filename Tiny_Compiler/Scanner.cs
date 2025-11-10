@@ -182,7 +182,11 @@ namespace Tiny_Compiler
                 Tok.token_type = Token_Class.CommentStatment;
             // Is Undefined?
             else {
-                Errors.Error_List.Add("Undefined Token: " + Lex);
+                string recommended = Recommender.ErrorRecommend.Recommend(Lex, ReservedWords);
+                string error = "Undefined Token: " + Lex;
+                if (recommended != Lex)
+                    error += ", Did you mean " + recommended + "?";
+                Errors.Error_List.Add(error);
                 return;
             }
             Tokens.Add(Tok);
