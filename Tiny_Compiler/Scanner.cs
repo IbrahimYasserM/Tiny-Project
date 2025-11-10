@@ -199,7 +199,7 @@ namespace Tiny_Compiler
         bool isString(string lex)
         {
             // Check if the lex is a String or not.
-            var rx = new Regex(@"^""([^""]|\\"")*""$", RegexOptions.Compiled);
+            var rx = new Regex(@"^""(([^""]|\\"")*[^\\]|)""$", RegexOptions.Compiled);
             return rx.IsMatch(lex);
         }
         bool isCommentStatment(string lex)
@@ -217,7 +217,7 @@ namespace Tiny_Compiler
 
         bool isLetter(char ch)
         {
-            return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '_';
+            return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
         }
 
         bool IsDigit(char ch)
