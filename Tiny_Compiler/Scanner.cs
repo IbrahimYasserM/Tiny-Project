@@ -24,6 +24,7 @@ public enum Token_Class
     MinusOp,
     MultiplyOp,
     DivideOp,
+    AssignOp,
     EqualOp,
     LessThanOp,
     GreaterThanOp,
@@ -33,7 +34,13 @@ public enum Token_Class
     Identifier,
     ConstantNumber,
     ConstantString,
-    CommentStatment
+    CommentStatment,
+    Comma,
+    Semicolon,
+    LeftCurlyPrant,
+    RightCurlyPrant,
+    LeftPrant,
+    RightPrant
 }
 namespace Tiny_Compiler
 {
@@ -52,6 +59,8 @@ namespace Tiny_Compiler
         Dictionary<string, Token_Class> ArithmeticOperators = new Dictionary<string, Token_Class>();
         Dictionary<string, Token_Class> ConditionOperators = new Dictionary<string, Token_Class>();
         Dictionary<string, Token_Class> BooleanOperators = new Dictionary<string, Token_Class>();
+        Dictionary<string, Token_Class> Punctuation = new Dictionary<string, Token_Class>();
+        Dictionary<string, Token_Class> Brackets = new Dictionary<string, Token_Class>();
 
         public Scanner()
         {
@@ -73,6 +82,7 @@ namespace Tiny_Compiler
             ArithmeticOperators.Add("-", Token_Class.MinusOp);
             ArithmeticOperators.Add("*", Token_Class.MultiplyOp);
             ArithmeticOperators.Add("/", Token_Class.DivideOp);
+            ArithmeticOperators.Add(":=", Token_Class.AssignOp);
 
             ConditionOperators.Add("=", Token_Class.EqualOp);
             ConditionOperators.Add("<", Token_Class.LessThanOp);
@@ -81,6 +91,14 @@ namespace Tiny_Compiler
 
             BooleanOperators.Add("&&", Token_Class.AndOp);
             BooleanOperators.Add("||", Token_Class.OrOp);
+
+            Punctuation.Add(",", Token_Class.Comma);
+            Punctuation.Add(";", Token_Class.Semicolon);
+
+            Brackets.Add("{", Token_Class.LeftCurlyPrant);
+            Brackets.Add("}", Token_Class.RightCurlyPrant);
+            Brackets.Add("(", Token_Class.LeftPrant);
+            Brackets.Add(")", Token_Class.RightPrant);
         }
 
     public void StartScanning(string SourceCode)
@@ -90,7 +108,7 @@ namespace Tiny_Compiler
                 char CurrentChar = SourceCode[i];
                 string CurrentLexeme = CurrentChar.ToString();
 
-                if (CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n')
+                if (CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\t')
                     continue;
 
                 if (isLetter(CurrentChar))
@@ -146,6 +164,11 @@ namespace Tiny_Compiler
                     if(i + 1 < SourceCode.Length && SourceCode[i + 1] == '>')
                         CurrentLexeme += SourceCode[++i];
                 }
+                else if(CurrentChar == ':')
+                {
+                    if(i + 1 < SourceCode.Length && SourceCode[i + 1] == '=')
+                        CurrentLexeme += SourceCode[++i];
+                }
                 FindTokenClass(CurrentLexeme);
             }
             
@@ -167,6 +190,12 @@ namespace Tiny_Compiler
                 Tok.token_type = TC;
             // Is Boolean Operator?
             else if(BooleanOperators.TryGetValue(Lex, out TC))
+                Tok.token_type = TC;
+            // Is Punctuation?
+            else if(Punctuation.TryGetValue(Lex, out TC))
+                Tok.token_type = TC;
+            // Is Bracket?
+            else if(Brackets.TryGetValue(Lex, out TC))
                 Tok.token_type = TC;
             // Is Identifier?
             else if (isIdentifier(Lex))
