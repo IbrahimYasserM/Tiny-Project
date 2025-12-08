@@ -15,18 +15,15 @@ namespace Tiny_Compiler
         public Form1()
         {
             InitializeComponent();
-            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             textBox2.Clear();
-            //string Code=textBox1.Text.ToLower();
-            string Code = textBox1.Text;
+            string Code=textBox1.Text.ToLower();
             Tiny_Compiler.Start_Compiling(Code);
             PrintTokens();
-         //   PrintLexemes();
-
+            treeView1.Nodes.Add(Parser.PrintParseTree(Tiny_Compiler.treeroot));
             PrintErrors();
         }
         void PrintTokens()
@@ -42,7 +39,6 @@ namespace Tiny_Compiler
             for(int i=0; i<Errors.Error_List.Count; i++)
             {
                 textBox2.Text += Errors.Error_List[i];
-                textBox2.Text += "\r\n";
             }
         }
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -50,38 +46,15 @@ namespace Tiny_Compiler
 
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void button2_Click(object sender, EventArgs e)
         {
-            dataGridView1.Rows.Clear();
+            textBox1.Text = "";
+            textBox2.Text = "";
             Tiny_Compiler.TokenStream.Clear();
+            dataGridView1.Rows.Clear();
+            treeView1.Nodes.Clear();
+            Errors.Error_List.Clear();
         }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-        /*  void PrintLexemes()
-{
-for (int i = 0; i < Tiny_Compiler.Lexemes.Count; i++)
-{
-textBox2.Text += Tiny_Compiler.Lexemes.ElementAt(i);
-textBox2.Text += Environment.NewLine;
-}
-}*/
+        
     }
 }
