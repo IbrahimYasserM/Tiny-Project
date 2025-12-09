@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 public enum Token_Class
 {
+    Main,
     Int,
     Float,
     String,
@@ -20,6 +21,7 @@ public enum Token_Class
     Then,
     Return,
     End,
+    Endl,
     PlusOp,
     MinusOp,
     MultiplyOp,
@@ -64,6 +66,7 @@ namespace Tiny_Compiler
 
         public Scanner()
         {
+            ReservedWords.Add("main", Token_Class.Main);
             ReservedWords.Add("int", Token_Class.Int);
             ReservedWords.Add("float", Token_Class.Float);
             ReservedWords.Add("string", Token_Class.String);
@@ -77,6 +80,7 @@ namespace Tiny_Compiler
             ReservedWords.Add("then", Token_Class.Then);
             ReservedWords.Add("return", Token_Class.Return);
             ReservedWords.Add("end", Token_Class.End);
+            ReservedWords.Add("endl", Token_Class.Endl);
 
             ArithmeticOperators.Add("+", Token_Class.PlusOp);
             ArithmeticOperators.Add("-", Token_Class.MinusOp);
