@@ -30,6 +30,7 @@ namespace Tiny_Compiler
             this.InputPointer = 0;
             this.TokenStream = TokenStream;
             root = new Node("Program");
+            root.Children.Add(Statements());
             return root;
         }
 
@@ -158,12 +159,39 @@ namespace Tiny_Compiler
             return datatype;
         }
 
+        Node Assignment_Declaration()
+        {
+            Node assignmentDeclaration = new Node("Assignment_Declaration");
+            if(InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.AssignOp)
+            {
+                assignmentDeclaration.Children.Add(match(Token_Class.AssignOp));
+                assignmentDeclaration.Children.Add(Expression());
+            }
+            return assignmentDeclaration;
+        }
+
+        Node Other_Declarations()
+        {
+            Node otherDeclarations = new Node("Other_Declarations");
+            if(InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.Comma)
+            {
+                otherDeclarations.Children.Add(match(Token_Class.Comma));
+                otherDeclarations.Children.Add(match(Token_Class.Identifier));
+                otherDeclarations.Children.Add(Assignment_Declaration());
+                otherDeclarations.Children.Add(Other_Declarations());
+            }
+            return otherDeclarations;
+        }
+
         Node Declaration_Statement()
         {
             Node declarationStatement = new Node("Declaration_Statement");
             declarationStatement.Children.Add(Datatype());
             declarationStatement.Children.Add(match(Token_Class.Identifier));
-            declarationStatement.Children.Add(Identifiers());
+            declarationStatement.Children.Add(Assignment_Declaration());
+            declarationStatement.Children.Add(Other_Declarations());
             declarationStatement.Children.Add(match(Token_Class.Semicolon));
             return declarationStatement;
         }
@@ -230,6 +258,166 @@ namespace Tiny_Compiler
             conditionStatement.Children.Add(Condition());
             conditionStatement.Children.Add(Other_Conditions());
             return conditionStatement;
+        }
+
+        Node Else_Statement()
+        {
+            Node elseStatement = new Node("Else_Statement");
+            elseStatement.Children.Add(match(Token_Class.Else));
+            elseStatement.Children.Add(Statements());
+            elseStatement.Children.Add(match(Token_Class.End));
+            return elseStatement;
+        }
+
+        Node Else_If_Statement()
+        {
+            Node elseIfStatement = new Node("Else_If_Statement");
+            elseIfStatement.Children.Add(match(Token_Class.ElseIf));
+            elseIfStatement.Children.Add(Condition_Statement());
+            elseIfStatement.Children.Add(match(Token_Class.Then));
+            elseIfStatement.Children.Add(Statements());
+            elseIfStatement.Children.Add(Rest_If());
+            return elseIfStatement;
+        }
+
+        Node Rest_If()
+        {
+            Node restIf = new Node("Rest_If");
+            if (InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.ElseIf)
+                restIf.Children.Add(Else_If_Statement());
+            else if (InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.Else)
+                restIf.Children.Add(Else_Statement());
+            else if (InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.End)
+                restIf.Children.Add(match(Token_Class.End));
+            else
+                Errors.Error_List.Add("Parsing Error: Expected ElseIf, Else or End\r\n");
+            return restIf;
+        }
+
+        Node If_Statement()
+        {
+            Node ifStatement = new Node("If_Statement");
+            ifStatement.Children.Add(match(Token_Class.If));
+            ifStatement.Children.Add(Condition_Statement());
+            ifStatement.Children.Add(match(Token_Class.Then));
+            ifStatement.Children.Add(Statements());
+            ifStatement.Children.Add(Rest_If());
+            return ifStatement;
+        }
+
+        Node Repeat_Statement()
+        {
+            Node repeatStatement = new Node("Repeat_Statement");
+            repeatStatement.Children.Add(match(Token_Class.Repeat));
+            repeatStatement.Children.Add(Statements());
+            repeatStatement.Children.Add(match(Token_Class.Until));
+            repeatStatement.Children.Add(Condition_Statement());
+            return repeatStatement;
+        }
+
+        Node FunctionName()
+        {
+            Node functionName = new Node("FunctionName");
+            functionName.Children.Add(match(Token_Class.Identifier));
+            return functionName;
+        }
+
+        Node Parameter()
+        {
+            Node parameter = new Node("Parameter");
+            parameter.Children.Add(Datatype());
+            parameter.Children.Add(match(Token_Class.Identifier));
+            return parameter;
+        }
+
+        Node Other_Parameter()
+        {
+            Node otherParameter = new Node("Other_Parameter");
+            if(InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.Comma)
+            {
+                otherParameter.Children.Add(match(Token_Class.Comma));
+                otherParameter.Children.Add(Parameter());
+                otherParameter.Children.Add(Other_Parameter());
+            }
+            return otherParameter;
+        }
+
+        Node Parameter_List()
+        {
+            Node parameterList = new Node("Parameter_List");
+            if(InputPointer < TokenStream.Count &&
+                (TokenStream[InputPointer].token_type == Token_Class.Int ||
+                TokenStream[InputPointer].token_type == Token_Class.Float ||
+                TokenStream[InputPointer].token_type == Token_Class.String))
+            {
+                parameterList.Children.Add(Parameter());
+                parameterList.Children.Add(Other_Parameter());
+            }
+            return parameterList;
+        }
+
+        Node Function_Body()
+        {
+            Node functionBody = new Node("Function_Body");
+            functionBody.Children.Add(match(Token_Class.LeftCurlyPrant));
+            functionBody.Children.Add(Statements());
+            functionBody.Children.Add(match(Token_Class.RightCurlyPrant));
+            return functionBody;
+        }
+
+        Node Statement()
+        {
+            Node statement = new Node("Statement");
+            if(InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.Identifier)
+                statement.Children.Add(Assignment_Statement());
+            else if (InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.Int ||
+                TokenStream[InputPointer].token_type == Token_Class.Float ||
+                TokenStream[InputPointer].token_type == Token_Class.String)
+                statement.Children.Add(Declaration_Statement());
+            else if (InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.Write)
+                statement.Children.Add(Write_Statement());
+            else if (InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.Read)
+                statement.Children.Add(Read_Statement());
+            else if (InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.If)
+                statement.Children.Add(If_Statement());
+            else if (InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.Repeat)
+                statement.Children.Add(Repeat_Statement());
+            else if (InputPointer < TokenStream.Count &&
+                TokenStream[InputPointer].token_type == Token_Class.Return)
+                statement.Children.Add(Return_Statement());
+            else
+                Errors.Error_List.Add("Parsing Error: Expected a Statement\r\n");
+            return statement;
+        }
+
+        Node Statements()
+        {
+            Node statements = new Node("Statements");
+            if (InputPointer < TokenStream.Count &&
+                (TokenStream[InputPointer].token_type == Token_Class.Identifier ||
+                TokenStream[InputPointer].token_type == Token_Class.Int ||
+                TokenStream[InputPointer].token_type == Token_Class.Float ||
+                TokenStream[InputPointer].token_type == Token_Class.String ||
+                TokenStream[InputPointer].token_type == Token_Class.Write ||
+                TokenStream[InputPointer].token_type == Token_Class.Read ||
+                TokenStream[InputPointer].token_type == Token_Class.If ||
+                TokenStream[InputPointer].token_type == Token_Class.Repeat ||
+                TokenStream[InputPointer].token_type == Token_Class.Return ))
+            {
+                statements.Children.Add(Statement());
+                statements.Children.Add(Statements());
+            }
+            return statements;
         }
 
         public Node match(Token_Class ExpectedToken)
