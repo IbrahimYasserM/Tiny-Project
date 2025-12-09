@@ -19,7 +19,9 @@ namespace Tiny_Compiler
             //Scanner
             Tiny_Scanner.StartScanning(SourceCode);
             //Parser
-            Tiny_Parser.StartParsing(TokenStream);
+            List<Token> ParserTokenStream = new List<Token>(TokenStream);
+            ParserTokenStream.RemoveAll(t => t.token_type == Token_Class.CommentStatment);
+            Tiny_Parser.StartParsing(ParserTokenStream);
             treeroot = Tiny_Parser.root;
         }
     }
