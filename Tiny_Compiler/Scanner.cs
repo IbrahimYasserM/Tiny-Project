@@ -242,7 +242,7 @@ namespace Tiny_Compiler
         bool isCommentStatment(string lex)
         {
             // Check if the lex is a Comment Statement or not.
-            var rx = new Regex(@"^/\*.*\*/$", RegexOptions.Compiled);
+            var rx = new Regex(@"^/\*(.|\n)*\*/$", RegexOptions.Compiled);
             return rx.IsMatch(lex);
         }
         bool isIdentifier(string lex)
