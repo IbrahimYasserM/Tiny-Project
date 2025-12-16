@@ -34,6 +34,9 @@ namespace Tiny_Compiler
             root.Children.Add(Datatype());
             root.Children.Add(FunctionStatements());
             root.Children.Add(MainFunction());
+            if(InputPointer < TokenStream.Count)
+                Errors.Error_List.Add("Parsing Error: Expected end of file "
+                        + TokenStream[InputPointer].ToString() + " found \r\n");
             return root;
         }
         Node FunctionStatements()
