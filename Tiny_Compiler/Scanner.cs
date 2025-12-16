@@ -57,7 +57,7 @@ namespace Tiny_Compiler
     public class Scanner
     {
         public List<Token> Tokens = new List<Token>();
-        Dictionary<string, Token_Class> ReservedWords = new Dictionary<string, Token_Class>();
+        public Dictionary<string, Token_Class> ReservedWords = new Dictionary<string, Token_Class>();
         Dictionary<string, Token_Class> ArithmeticOperators = new Dictionary<string, Token_Class>();
         Dictionary<string, Token_Class> ConditionOperators = new Dictionary<string, Token_Class>();
         Dictionary<string, Token_Class> BooleanOperators = new Dictionary<string, Token_Class>();

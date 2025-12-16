@@ -437,7 +437,8 @@ namespace Tiny_Compiler
                         + ExpectedToken.ToString() + " and " +
                         TokenStream[InputPointer].token_type.ToString() +
                         "  found\r\n");
-                    InputPointer++;
+                    if (Recommender.ErrorRecommend. Recommend(TokenStream[InputPointer].lex, Tiny_Compiler.Tiny_Scanner.ReservedWords) != TokenStream[InputPointer].lex)
+                        InputPointer++;
                     return null;
                 }
             }
@@ -445,7 +446,6 @@ namespace Tiny_Compiler
             {
                 Errors.Error_List.Add("Parsing Error: Expected "
                         + ExpectedToken.ToString() + "\r\n");
-                InputPointer++;
                 return null;
             }
         }
